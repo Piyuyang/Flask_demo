@@ -17,7 +17,8 @@ app = Flask(__name__)
 # app.config.from_pyfile('settings.py')
 
 # 环境变量加载
-app.config.from_envvar('REDIS_ADDR')
+# app.config.from_envvar('REDIS_ADDR')
+app.config.from_envvar('REDIS_ADDR1', silent=True)  # silent定义出现问题是否静默处理
 
 
 # 定义路由规则及视图

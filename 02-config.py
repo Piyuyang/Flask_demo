@@ -1,6 +1,5 @@
 from flask import Flask
 
-
 # # 配置对象加载
 # class DefaultConfig(object):
 #     REDIS_ADDR = "redis in class"
@@ -15,12 +14,15 @@ app = Flask(__name__)
 # app.config.from_object(DefaultConfig)
 
 # 配置文件加载
-app.config.from_pyfile('settings.py')
+# app.config.from_pyfile('settings.py')
+
+# 环境变量加载
+app.config.from_envvar('REDIS_ADDR')
+
 
 # 定义路由规则及视图
 @app.route('/')
 def index():
-
     # 测试配置是否生效
     print(app.config.get('REDIS_ADDR'))
 

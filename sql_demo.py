@@ -47,6 +47,10 @@ class User(db.Model):
     email = db.Column(db.String, doc='邮箱')
     status = db.Column(db.Integer, default=1, doc='状态，是否可用')
 
+    # 使用补充的relationship字段明确触发的属性
+    profile = db.relationship('UserProfile', uselist=False)
+
+
 class UserProfile(db.Model):
     """
     用户资料表
@@ -57,7 +61,10 @@ class UserProfile(db.Model):
         MALE = 0
         FEMALE = 1
 
-    id = db.Column('user_id', db.Integer, primary_key=True, doc='用户ID')
+    # 使用外键ForeignKey来明确两张表的关系
+    id = db.Column('user_id', db.Integer, db.ForeignKey('user_basic.user_id'), primary_key=True, doc='用户ID')
+
+    # id = db.Column('user_id', db.Integer, primary_key=True, doc='用户ID')
     gender = db.Column(db.Integer, default=0, doc='性别')
     birthday = db.Column(db.Date, doc='生日')
     real_name = db.Column(db.String, doc='真实姓名')

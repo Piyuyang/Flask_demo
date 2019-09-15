@@ -48,10 +48,11 @@ class User(db.Model):
     status = db.Column(db.Integer, default=1, doc='状态，是否可用')
 
     # 使用补充的relationship字段明确触发的属性
-    # profile = db.relationship('UserProfile', uselist=False)
+    profile = db.relationship('UserProfile', uselist=False)
+    follow = db.relationship('Relation')
 
     # 使用primaryjoin来明确两张表的属性，使用补充的relationship字段明确触发的属性
-    profile = db.relationship('UserProfile', primaryjoin='User.id==foreign(UserProfile.id)', uselist=False)
+    # profile = db.relationship('UserProfile', primaryjoin='User.id==foreign(UserProfile.id)', uselist=False)
 
 
 class UserProfile(db.Model):
@@ -65,9 +66,9 @@ class UserProfile(db.Model):
         FEMALE = 1
 
     # 使用外键ForeignKey来明确两张表的关系
-    # id = db.Column('user_id', db.Integer, db.ForeignKey('user_basic.user_id'), primary_key=True, doc='用户ID')
+    id = db.Column('user_id', db.Integer, db.ForeignKey('user_basic.user_id'), primary_key=True, doc='用户ID')
 
-    id = db.Column('user_id', db.Integer, primary_key=True, doc='用户ID')
+    # id = db.Column('user_id', db.Integer, primary_key=True, doc='用户ID')
     gender = db.Column(db.Integer, default=0, doc='性别')
     birthday = db.Column(db.Date, doc='生日')
     real_name = db.Column(db.String, doc='真实姓名')
@@ -96,8 +97,15 @@ class Relation(db.Model):
         BLACKLIST = 2
 
     id = db.Column('relation_id', db.Integer, primary_key=True, doc='主键ID')
-    user_id = db.Column(db.Integer, doc='用户ID')
+    # user_id = db.Column(db.Integer, doc='用户ID')
+    user_id = db.Column(db.Integer, db.ForeignKey('user_basic.user_id'), doc='用户ID')
     target_user_id = db.Column(db.Integer, doc='目标用户ID')
     relation = db.Column(db.Integer, doc='关系')
     ctime = db.Column('create_time', db.DateTime, default=datetime.now, doc='创建时间')
     utime = db.Column('update_time', db.DateTime, default=datetime.now, onupdate=datetime.now, doc='更新时间')
+
+# 查询出 手机号为13912345678的用户关注了哪些用户 用户id
+# SELECT user_basic.user_id,user_relation.target_user_id FROM
+# user_basic INNER JOIN user_relation ON user_basic.user_id = user_relation.user_id
+# WHERE user_basic.mobile = '13912345678'
+# User.query.join(User.follow).options(load_only(User.id),contains_eager(User.follow).load_only(Relation.target_user_id)).filter(User.mobile=='13912345678',Relation.relation==1).all()

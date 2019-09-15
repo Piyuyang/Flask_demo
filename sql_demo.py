@@ -49,7 +49,7 @@ class User(db.Model):
 
     # 使用补充的relationship字段明确触发的属性
     profile = db.relationship('UserProfile', uselist=False)
-    follow = db.relationship('Relation')
+    follows = db.relationship('Relation')
 
     # 使用primaryjoin来明确两张表的属性，使用补充的relationship字段明确触发的属性
     # profile = db.relationship('UserProfile', primaryjoin='User.id==foreign(UserProfile.id)', uselist=False)
@@ -104,8 +104,17 @@ class Relation(db.Model):
     ctime = db.Column('create_time', db.DateTime, default=datetime.now, doc='创建时间')
     utime = db.Column('update_time', db.DateTime, default=datetime.now, onupdate=datetime.now, doc='更新时间')
 
+    target_user = db.relationship('User', primaryjoin='Relation.target_user_id==foreign(User.id)')
+
 # 查询出 手机号为13912345678的用户关注了哪些用户 用户id
 # SELECT user_basic.user_id,user_relation.target_user_id FROM
 # user_basic INNER JOIN user_relation ON user_basic.user_id = user_relation.user_id
 # WHERE user_basic.mobile = '13912345678'
 # User.query.join(User.follow).options(load_only(User.id),contains_eager(User.follow).load_only(Relation.target_user_id)).filter(User.mobile=='13912345678',Relation.relation==1).all()
+
+# 查询出 编号为1的用户 被哪些用户关注 用户名
+# SELECT user_basic.user_name FROM
+# user_basic INNER JOIN user_relation
+# ON user_basic.user_id=user_relation.target_user_id
+# WHERE user_basic.user_id=1
+# Relation.query.join(Relation.target_user).options(contains_eager(Relation.target_user).load_only(User.name),load_only(Relation.target_user_id)).filter(User.id==1).all()
